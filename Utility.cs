@@ -60,6 +60,11 @@ namespace ShopOffice
             }
 
         }
+        /// <summary>
+        /// This method returns configuration according to key name
+        /// </summary>
+        /// <param name="key">Key name</param>
+        /// <returns>Configuration value</returns>
         public static String? GetConfiguration(String key)
         {
             var appSettings = ConfigurationManager.AppSettings;
