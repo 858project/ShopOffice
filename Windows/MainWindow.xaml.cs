@@ -116,9 +116,38 @@ namespace ShopOffice.Windows
         private Table_Account_DatabaseModel? mAccount = null;
         #endregion
 
+        #region - Private Static Methods -
+        /// <summary>
+        /// This method checks control key from keyboard
+        /// </summary>
+        /// <param name="e">key arguments from control</param>
+        /// <returns>True | false</returns>
+        private static Boolean InternalIsControlKey(KeyEventArgs e)
+        {
+            return e.Key == Key.LeftCtrl ||
+                   e.Key == Key.RightCtrl ||
+                   Keyboard.IsKeyDown(Key.LeftCtrl) ||
+                   Keyboard.IsKeyDown(Key.RightCtrl) ||
+                   (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
+        }
+        /// <summary>
+        /// This method checks alt key from keyboard
+        /// </summary>
+        /// <param name="e">key arguments from control</param>
+        /// <returns>True | false</returns>
+        private static Boolean InternalIsAltKey(KeyEventArgs e)
+        {
+            return e.Key == Key.LeftAlt ||
+                   e.Key == Key.RightAlt ||
+                   Keyboard.IsKeyDown(Key.LeftAlt) ||
+                   Keyboard.IsKeyDown(Key.RightAlt) ||
+                   (Keyboard.Modifiers & ModifierKeys.Alt) == ModifierKeys.Alt;
+        }
+        #endregion
+
         #region - Private Methods -
         /// <summary>
-        /// This method is called by the Set accessor of each property.  
+        /// This method is called by the Set accessor of each property.
         /// </summary>
         /// <param name="propertyName">Property name</param>
         private void InternalNotifyPropertyChanged([CallerMemberName] String propertyName = "")
@@ -126,47 +155,28 @@ namespace ShopOffice.Windows
             this.PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
         /// <summary>
-        /// This method invalidates ribbon buttons
-        /// </summary>
-        private void InternalInvalidateRibbon()
-        {
-            this.InternalInvalidateRibbon(this.Account != null);
-        }
-        /// <summary>
-        /// This method invalidates ribbon buttons
-        /// </summary>
-        /// <param name="state">Current state</param>
-        private void InternalInvalidateRibbon(Boolean state)
-        {
-            //this.rrbConnect.IsEnabled = !state;
-            //this.rrbDisconnect.IsEnabled = state;
-        }
-        /// <summary>
         /// This method opens login windows for logging
         /// </summary>
         private void InternalSignIn()
         {
             // create login dialog
-            LoginWindow window = new LoginWindow(this.LoggerFactory, this.Configuration, this.DatabaseFactory)
+            LoginWindow window = new(this.LoggerFactory, this.Configuration, this.DatabaseFactory)
             {
                 Owner = this
             };
- 
+
             // show login dialg
             if (window.ShowDialog() == true)
             {
                 // save account data
                 this.Account = window.Account;
 
-                // invalidate current ribbon
-                this.InternalInvalidateRibbon();
-
                 // set sale control
                 this.InternalSetControl(ControlTypes.Sale);
             }
         }
         /// <summary>
-        /// This function clears user's data 
+        /// This function clears user's data
         /// </summary>
         private void InternalClear()
         {
@@ -182,9 +192,6 @@ namespace ShopOffice.Windows
 
             // clear data
             this.InternalClear();
-
-            // invalidate ribbon
-            this.InternalInvalidateRibbon();
         }
         /// <summary>
         /// This methods execute login for user
@@ -203,22 +210,6 @@ namespace ShopOffice.Windows
         private void RrbLogOut_Click(object sender, RoutedEventArgs e)
         {
             this.InternalSignOut();
-        }       
-        private Boolean InternalIsControlKey(KeyEventArgs e)
-        {
-            return e.Key == Key.LeftCtrl ||
-                   e.Key == Key.RightCtrl ||
-                   Keyboard.IsKeyDown(Key.LeftCtrl) ||
-                   Keyboard.IsKeyDown(Key.RightCtrl) ||
-                   (Keyboard.Modifiers & ModifierKeys.Control) == ModifierKeys.Control;
-        }
-        private Boolean InternalIsAltKey(KeyEventArgs e)
-        {
-            return e.Key == Key.LeftAlt ||
-                   e.Key == Key.RightAlt ||
-                   Keyboard.IsKeyDown(Key.LeftAlt) ||
-                   Keyboard.IsKeyDown(Key.RightAlt) ||
-                   (Keyboard.Modifiers & ModifierKeys.Alt) == ModifierKeys.Alt;
         }
         /// <summary>
         /// This method executes key from window
@@ -227,14 +218,14 @@ namespace ShopOffice.Windows
         /// <param name="e">Arguments</param>
         private void Window_KeyDown(object sender, KeyEventArgs e)
         {
-            Debug.WriteLine(String.Format("Key down: {0} - Ctrl: {1} - Alt: {2} - State: {3} - IsRepeat: {4}", 
-                e.Key, this.InternalIsControlKey(e), this.InternalIsAltKey(e), e.KeyStates, e.IsRepeat));
+            // debug trace
+            Debug.WriteLine($"Key down: {e.Key} - Ctrl: {MainWindow.InternalIsControlKey(e)} - Alt: {MainWindow.InternalIsAltKey(e)} - State: {e.KeyStates} - IsRepeat: {e.IsRepeat}");
 
             // check current user
             if (this.IsAccount)
             {
                 // request for sale control
-                if (this.InternalIsControlKey(e) && this.InternalIsAltKey(e))
+                if (MainWindow.InternalIsControlKey(e) && MainWindow.InternalIsAltKey(e))
                 {
                     // request for daily report control
                     if (e.Key == Key.Y)
@@ -246,7 +237,7 @@ namespace ShopOffice.Windows
                         e.Handled = true;
                     }
                 }
-                else if (this.InternalIsControlKey(e))
+                else if (MainWindow.InternalIsControlKey(e))
                 {
                     if (e.Key == Key.E)
                     {
@@ -285,17 +276,6 @@ namespace ShopOffice.Windows
                 }
             }
         }
-        private void InternalInitializeContextualTabGroup(ControlTypes type)
-        {
-            if (type == ControlTypes.Products)
-            {
-                //this.rrctgProductContextualTabGroup.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                //this.rrctgProductContextualTabGroup.Visibility = Visibility.Hidden;
-            }
-        }
         /// <summary>
         /// This method sets control to window
         /// </summary>
@@ -311,9 +291,6 @@ namespace ShopOffice.Windows
 
                 // initialize control
                 control.Initialize(TimeSpan.FromMilliseconds(500));
-
-                // initialize contextua tab
-                this.InternalInitializeContextualTabGroup(type);
             }
         }
         /// <summary>
@@ -350,19 +327,30 @@ namespace ShopOffice.Windows
         {
             this.InternalSignIn();
         }
-        #endregion
-
-        private void miSignIn_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// This method sign in the user
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">Arguments</param>
+        private void MiSignIn_Click(object sender, RoutedEventArgs e)
         {
             this.InternalSignIn();
         }
-
-        private void miSignOut_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// This method sign out the user
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">Arguments</param>
+        private void MiSignOut_Click(object sender, RoutedEventArgs e)
         {
             this.InternalSignOut();
         }
-
-        private void miAddProduct_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// This method allows to add a new product if PRODUCTS control is currently active
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">Arguments</param>
+        private void MiAddProduct_Click(object sender, RoutedEventArgs e)
         {
             if (this.ccPanel.Content != null)
             {
@@ -373,16 +361,25 @@ namespace ShopOffice.Windows
                 }
             }
         }
-
-        private void miProducts_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// This method switchs application to PRODUCTS control
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">Arguments</param>
+        private void MiProducts_Click(object sender, RoutedEventArgs e)
         {
             this.InternalSetControl(ControlTypes.Products);
         }
-
-        private void miSale_Click(object sender, RoutedEventArgs e)
+        /// <summary>
+        /// This method switchs application to SALE control
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">Arguments</param>
+        private void MiSale_Click(object sender, RoutedEventArgs e)
         {
             this.InternalSetControl(ControlTypes.Sale);
         }
+        #endregion
 
         #region - Window Chrome Methods -
         /// <summary>

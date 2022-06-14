@@ -70,7 +70,8 @@
             StretchDirection="Both" Stretch="Uniform">
             <TextBlock
                 Name="tbTotalAmount"
-                HorizontalAlignment="Center">
+                HorizontalAlignment="Center"
+                Foreground="White">
             </TextBlock>
         </Viewbox>
     </Grid>

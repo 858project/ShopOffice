@@ -100,13 +100,13 @@
                     <MenuItem Header="{x:Static properties:Resources.str_0002}">
                         <MenuItem Name="miSignIn"
                           Header="{x:Static properties:Resources.str_0004}"
-                          Click="miSignIn_Click"
+                          Click="MiSignIn_Click"
                           Visibility="{Binding Account, 
                                                Converter={StaticResource notNullableToVisibilityConverter}}">
                         </MenuItem>
                         <MenuItem Name="miSignOut"
                           Header="{x:Static properties:Resources.str_0005}"
-                          Click="miSignOut_Click"
+                          Click="MiSignOut_Click"
                           Visibility="{Binding Account, 
                                                Converter={StaticResource nullableToVisibilityConverter}}">
                         </MenuItem>
@@ -116,7 +116,7 @@
                                            Converter={StaticResource nullableToVisibilityConverter}}">
                         <MenuItem Name="miAddProduct"
                           Header="{x:Static properties:Resources.str_0029}"
-                          Click="miAddProduct_Click"
+                          Click="MiAddProduct_Click"
                           Visibility="{Binding ElementName=ccPanel, 
                                                Path=Content, 
                                                Converter={StaticResource controlTypeToVisibleConverter}, 
@@ -124,7 +124,7 @@
                         </MenuItem>
                         <MenuItem Name="miProducts"
                             Header="{x:Static properties:Resources.str_0035}"
-                            Click="miProducts_Click"
+                            Click="MiProducts_Click"
                             InputGestureText="Ctrl+D"
                             Visibility="{Binding ElementName=ccPanel, 
                                         Path=Content, 
@@ -133,7 +133,7 @@
                         </MenuItem>
                         <MenuItem Name="miSale"
                             Header="{x:Static properties:Resources.str_0036}"
-                            Click="miSale_Click"
+                            Click="MiSale_Click"
                             InputGestureText="Ctrl+E"
                             Visibility="{Binding ElementName=ccPanel, 
                                 Path=Content, 
