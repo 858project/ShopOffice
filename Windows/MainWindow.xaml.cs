@@ -384,40 +384,57 @@ namespace ShopOffice.Windows
             this.InternalSetControl(ControlTypes.Sale);
         }
 
-
-
-
-        // Can execute
+        #region - Window Chrome Methods -
+        /// <summary>
+        /// This methods check whether command can be executed
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">Arguments</param>
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
         }
-
-        // Minimize
-        private void CommandBinding_Executed_Minimize(object sender, ExecutedRoutedEventArgs e)
-        {
-            SystemCommands.MinimizeWindow(this);
-        }
-
-        // Maximize
-        private void CommandBinding_Executed_Maximize(object sender, ExecutedRoutedEventArgs e)
-        {
-            SystemCommands.MaximizeWindow(this);
-        }
-
-        // Restore
-        private void CommandBinding_Executed_Restore(object sender, ExecutedRoutedEventArgs e)
-        {
-            SystemCommands.RestoreWindow(this);
-        }
-
-        // Close
+        /// <summary>
+        /// This method executes close windos command
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">Arguments</param>
         private void CommandBinding_Executed_Close(object sender, ExecutedRoutedEventArgs e)
         {
             SystemCommands.CloseWindow(this);
         }
-
-        // State change
+        /// <summary>
+        /// This method executes minimize windos command
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">Arguments</param>
+        private void CommandBinding_Executed_Minimize(object sender, ExecutedRoutedEventArgs e)
+        {
+            SystemCommands.MinimizeWindow(this);
+        }
+        /// <summary>
+        /// This method executes maximize windos command
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">Arguments</param>
+        private void CommandBinding_Executed_Maximize(object sender, ExecutedRoutedEventArgs e)
+        {
+            SystemCommands.MaximizeWindow(this);
+        }
+        /// <summary>
+        /// This method executes restore windos command
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">Arguments</param>
+        private void CommandBinding_Executed_Restore(object sender, ExecutedRoutedEventArgs e)
+        {
+            SystemCommands.RestoreWindow(this);
+        }
+        /// <summary>
+        /// This method changes windows after changing state in window
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">Arguments</param>
         private void MainWindowStateChangeRaised(object sender, EventArgs e)
         {
             if (WindowState == WindowState.Maximized)
@@ -433,5 +450,6 @@ namespace ShopOffice.Windows
                 MaximizeButton.Visibility = Visibility.Visible;
             }
         }
+        #endregion
     }
 }

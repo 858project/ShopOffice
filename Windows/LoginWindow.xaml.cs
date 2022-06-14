@@ -246,16 +246,25 @@ namespace ShopOffice.Windows
         }
         #endregion
 
-        // Can execute
+        #region - Window Chrome Methods -
+        /// <summary>
+        /// This methods check whether command can be executed
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">Arguments</param>
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
         }
-
-        // Close
+        /// <summary>
+        /// This method executes close windos command
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">Arguments</param>
         private void CommandBinding_Executed_Close(object sender, ExecutedRoutedEventArgs e)
         {
             SystemCommands.CloseWindow(this);
         }
+        #endregion
     }
 }

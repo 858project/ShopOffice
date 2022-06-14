@@ -80,70 +80,12 @@ namespace ShopOffice.Windows
         }
         #endregion
 
-
-        /*
-    /// <summary>
-    /// This method create TransactionRequest model with data
-    /// </summary>
-    /// <returns>Model with data</returns>
-    private TransactionRequestModel InternalCreateModel()
-    {
-        // create model
-        TransactionRequestModel model = new TransactionRequestModel();
-
-        // get card type
-        CardTypes cardType = (CardTypes)this.cbCardType.SelectedItem;
-        model.CardType = cardType;
-
-        // get transaction type
-        TransactionTypes transactionType = (TransactionTypes)this.cbTransactionType.SelectedItem;
-        model.TransactionType = transactionType;
-
-        // get serial number
-        String serialNumber = this.tbSerialNumber.Text;
-        model.SerialNumber = serialNumber;
-
-        // amount
-        if (transactionType != TransactionTypes.Void)
-        {
-            UInt64 amount = UInt64.Parse(this.tbAmount.Text);
-            model.Amount = amount;
-        }
-
-        // tip
-        if (transactionType == TransactionTypes.SaleWithTip)
-        {
-            UInt64 tip = UInt64.Parse(this.tbTip.Text);
-            model.Tip = tip;
-        }
-
-        // user code
-        String userCode = this.tbUserCode.Text;
-        if (!String.IsNullOrWhiteSpace(userCode))
-        {
-            model.UserCode = UInt32.Parse(userCode);
-        }
-
-        // approval code
-        if (transactionType == TransactionTypes.Void)
-        {
-            String approvalCode = this.tbtApprovalCode.Text;
-            model.ApprovalCode = approvalCode;
-        }
-
-        // receipt is required
-        Boolean receiptIsRequired = this.chbPrintReceipt.IsChecked == true;
-        model.PrintReceipt = receiptIsRequired;
-
-        // return model with data
-        return model;
-    }
-    */
+        #region - Private Methods -
         /// <summary>
-        /// Zatvori okno s dialogom na vykonanie end of day operacie
+        /// This method executes this window
         /// </summary>
-        /// <param name="sender">Odosielatel udalosti</param>
-        /// <param name="e">RoutedEventArgs</param>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">Arguments</param>
         private void BtnOk_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -172,10 +114,10 @@ namespace ShopOffice.Windows
             }
         }
         /// <summary>
-        /// Zatvori okno s dialogom na vykonanie end of day operacie
+        /// This method cancels this window
         /// </summary>
-        /// <param name="sender">Odosielatel udalosti</param>
-        /// <param name="e">RoutedEventArgs</param>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">Arguments</param>
         private void BtnCancel_Click(object sender, RoutedEventArgs e)
         {
             try
@@ -399,61 +341,27 @@ namespace ShopOffice.Windows
                 throw;
             }
         }
-        /*
-/// <summary>
-/// Overi zadany znak v textBoxe a povoli len zadanie ciselnych znakov
-/// </summary>
-/// <param name="sender">Odosielatel udalosti</param>
-/// <param name="e">TextCompositionEventArgs</param>
-private void AlphaNumericTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
-{
-try
-{
-if (sender is TextBox)
-{
-string text = (sender as TextBox).Text + e.Text;
-e.Handled = !Regex.IsMatch(text, @"^[0-9a-zA-Z]*$");
-}
-}
-catch (Exception ex)
-{
-this.Logger?.LogError(ex, ex.Message);
-throw;
-}
-}
-/// <summary>
-/// Overi zadany znak v textBoxe a povoli len zadanie ciselnych znakov
-/// </summary>
-/// <param name="sender">Odosielatel udalosti</param>
-/// <param name="e">TextCompositionEventArgs</param>
-private void NumericTextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
-{
-try
-{
-if (sender is TextBox)
-{
-string text = (sender as TextBox).Text + e.Text;
-e.Handled = !Regex.IsMatch(text, @"^\d*$");
-}
-}
-catch (Exception ex)
-{
-this.Logger?.LogError(ex, ex.Message);
-throw;
-}
-}
-*/
+        #endregion
 
-        // Can execute
+        #region - Window Chrome Methods -
+        /// <summary>
+        /// This methods check whether command can be executed
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">Arguments</param>
         private void CommandBinding_CanExecute(object sender, CanExecuteRoutedEventArgs e)
         {
             e.CanExecute = true;
         }
-
-        // Close
+        /// <summary>
+        /// This method executes close windos command
+        /// </summary>
+        /// <param name="sender">Sender</param>
+        /// <param name="e">Arguments</param>
         private void CommandBinding_Executed_Close(object sender, ExecutedRoutedEventArgs e)
         {
             SystemCommands.CloseWindow(this);
         }
+        #endregion
     }
 }
