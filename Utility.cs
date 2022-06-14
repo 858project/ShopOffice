@@ -1,32 +1,27 @@
-﻿using ShopOffice.Database;
-using ShopOffice.Models;
-using System;
-using System.Collections.Generic;
+﻿using System;
 using System.Configuration;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace ShopOffice
 {
     public static class Utility
     {
-                /// <summary>
-        /// Zacriptuje string do SHA1
+        /// <summary>
+        /// This method computes SHA1 hash from input string
         /// </summary>
-        /// <param name="value">Hodnota ktoru chceme zacryptovat</param>
-        /// <returns>Zacryptovany string</returns>
+        /// <param name="value">Input string to compute</param>
+        /// <returns>Computed hash</returns>
         public static String EncryptoSHA1(String value)
         {
             return Utility.EncryptoSHA1(value, Encoding.UTF8);
         }
         /// <summary>
-        /// Zacriptuje string do SHA1
+        /// This method computes SHA1 hash from input string
         /// </summary>
-        /// <param name="value">Hodnota ktoru chceme zacryptovat</param>
-        /// <param name="encoding">Encoding v akom chceme kodovat</param>
-        /// <returns>Zacryptovany string</returns>
+        /// <param name="value">Input string to compute</param>
+        /// <param name="encoding">Encoding</param>
+        /// <returns>Computed hash</returns>
         public static String EncryptoSHA1(String value, Encoding encoding)
         {
             if (!String.IsNullOrWhiteSpace(value))
@@ -41,6 +36,11 @@ namespace ShopOffice
             }
             return String.Empty;
         }
+        /// <summary>
+        /// This method return name for calendar
+        /// </summary>
+        /// <param name="type">Calendar type</param>
+        /// <returns>Calendar name</returns>
         public static String? GetNameForCalendarType(Int16 type)
         {
             switch (type)
@@ -82,31 +82,6 @@ namespace ShopOffice
         public static Boolean Validate(this string value, int minLength, int maxLength)
         {
             return !String.IsNullOrWhiteSpace(value) && value.Length >= minLength && value.Length <= maxLength;
-        }
-        public static Table_Product_DatabaseModel Clone(Table_Product_DatabaseModel model)
-        {
-            Table_Product_DatabaseModel product = new Table_Product_DatabaseModel();
-            Utility.Copy(model, product);
-            return product;
-        }
-        /// <summary>
-        /// This method copies product model to other product model
-        /// </summary>
-        /// <param name="source">Source model</param>
-        /// <param name="destination">Destination model</param>
-        public static void Copy(Table_Product_DatabaseModel source, Table_Product_DatabaseModel destination)
-        {
-            destination.Id = source.Id;
-            destination.AccountId = source.AccountId;
-            destination.Availability = source.Availability;
-            destination.CodeId = source.CodeId;
-            destination.Name = source.Name;
-            destination.Quantity = source.Quantity;
-            destination.Amount = source.Amount;
-            destination.MinQuantity = source.MinQuantity;
-            destination.Description = source.Description;
-            destination.CreateDate = source.CreateDate;
-            destination.UpdateDate = source.UpdateDate;
         }
     }
 }
