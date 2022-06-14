@@ -119,18 +119,26 @@
                           Click="miAddProduct_Click"
                           Visibility="{Binding ElementName=ccPanel, 
                                                Path=Content, 
-                                               Converter={StaticResource controlTypeToVisibilityConverter}, 
+                                               Converter={StaticResource controlTypeToVisibleConverter}, 
                                                ConverterParameter={x:Static enums:ControlTypes.Products}}">
                         </MenuItem>
                         <MenuItem Name="miProducts"
-                          Header="{x:Static properties:Resources.str_0035}"
-                          Click="miProducts_Click"
-                          InputGestureText="Ctrl+D">
+                            Header="{x:Static properties:Resources.str_0035}"
+                            Click="miProducts_Click"
+                            InputGestureText="Ctrl+D"
+                            Visibility="{Binding ElementName=ccPanel, 
+                                        Path=Content, 
+                                        Converter={StaticResource controlTypeToInvisibleConverter}, 
+                                        ConverterParameter={x:Static enums:ControlTypes.Products}}">
                         </MenuItem>
                         <MenuItem Name="miSale"
-                          Header="{x:Static properties:Resources.str_0036}"
-                          Click="miSale_Click"
-                          InputGestureText="Ctrl+E">
+                            Header="{x:Static properties:Resources.str_0036}"
+                            Click="miSale_Click"
+                            InputGestureText="Ctrl+E"
+                            Visibility="{Binding ElementName=ccPanel, 
+                                Path=Content, 
+                                Converter={StaticResource controlTypeToInvisibleConverter}, 
+                                ConverterParameter={x:Static enums:ControlTypes.Sale}}">
                         </MenuItem>
                     </MenuItem>
                 </Menu>

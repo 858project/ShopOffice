@@ -23,7 +23,8 @@
     <convertors:CalendarTypeConverter x:Key="CalendarTypeConverter" />
     <convertors:NullableToVisibilityConverter x:Key="nullableToVisibilityConverter" />
     <convertors:NotNullableToVisibilityConverter x:Key="notNullableToVisibilityConverter" />
-    <convertors:ControlTypeToVisibilityConverter x:Key="controlTypeToVisibilityConverter" />
+    <convertors:ControlTypeToVisibleConverter x:Key="controlTypeToVisibleConverter" />
+    <convertors:ControlTypeToInvisibleConverter x:Key="controlTypeToInvisibleConverter" />
     <Style TargetType="Button" BasedOn="{StaticResource StandardButton}"/>
     <Style TargetType="Window" BasedOn="{StaticResource StandardWindow}"/>
     <Style TargetType="Menu" BasedOn="{StaticResource StandardMenu}"/>

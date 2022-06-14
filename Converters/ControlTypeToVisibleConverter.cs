@@ -11,7 +11,7 @@ using ShopOffice.Controls;
 
 namespace ShopOffice.Converters
 {
-    public class ControlTypeToVisibilityConverter : IValueConverter
+    public class ControlTypeToVisibleConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {

@@ -12,7 +12,7 @@
         WindowStyle="None"
         WindowStartupLocation="CenterOwner"
         SizeToContent="WidthAndHeight"
-        Icon="/Windows/icon.png"
+        Icon="/Resources/icon.png"
         Style="{StaticResource StandardWindow}">
 
     <Window.DataContext>
