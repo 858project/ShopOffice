@@ -1,0 +1,77 @@
+﻿<controls:ControlBase x:Class="ShopOffice.Controls.DailyReportControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:properties="clr-namespace:ShopOffice.Properties"
+    xmlns:controls="clr-namespace:ShopOffice.Controls"
+    MinHeight="300"
+    MinWidth="750">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="75*" />
+            <RowDefinition Height="25*" MinHeight="150" />
+        </Grid.RowDefinitions>
+        <DataGrid 
+            Grid.Row="0"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            ItemsSource="{Binding}"
+            AutoGenerateColumns="false" 
+            CanUserResizeRows="False"
+            HorizontalGridLinesBrush="#CCAAAAAA" 
+            VerticalGridLinesBrush="#CCAAAAAA" 
+            SelectionMode="Single"
+            Name="dgSaleItems"
+            BorderBrush="Transparent"
+            IsReadOnly="True" 
+            CanUserAddRows="False"
+            SelectionUnit="FullRow"
+            Background="Transparent"
+            AlternationCount="2">
+            <DataGrid.Columns>
+                <DataGridTextColumn 
+                    Header="{x:Static properties:Resources.str_0015}"  
+                    Binding="{Binding CodeId}"
+                    Width="auto"
+                    MinWidth="60"
+                    >
+                </DataGridTextColumn>
+                <DataGridTextColumn 
+                    Header="{x:Static properties:Resources.str_0016}" 
+                    Binding="{Binding Name}"
+                    Width="*"
+                    MinWidth="100"
+                    >
+                </DataGridTextColumn>
+                <DataGridTextColumn 
+                    Header="{x:Static properties:Resources.str_0017}" 
+                    Binding="{Binding Quantity, Converter={StaticResource QuantityConverter}}"
+                    Width="auto"
+                    MinWidth="100"
+                    >
+                </DataGridTextColumn>
+                <DataGridTextColumn 
+                    Header="{x:Static properties:Resources.str_0018}" 
+                    Binding="{Binding Amount, Converter={StaticResource AmountConverter}}"
+                    Width="auto"
+                    MinWidth="100"
+                    >
+                </DataGridTextColumn>
+                <DataGridTextColumn 
+                    Header="{x:Static properties:Resources.str_0019}" 
+                    Binding="{Binding TotalAmount, Converter={StaticResource AmountConverter}}"
+                    Width="auto"
+                    MinWidth="100"
+                    >
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <Viewbox
+            Grid.Row="1"
+            StretchDirection="Both" Stretch="Uniform">
+            <TextBlock
+                Name="tbTotalAmount"
+                HorizontalAlignment="Center">
+            </TextBlock>
+        </Viewbox>
+    </Grid>
+</controls:ControlBase>

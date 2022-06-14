@@ -1,0 +1,40 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:convertors="clr-namespace:ShopOffice.Converters"
+                    xmlns:toolkit="clr-namespace:Xceed.Wpf.Toolkit;assembly=DotNetProjects.Wpf.Extended.Toolkit">
+    <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="ButtonStyles.xaml"/>
+        <ResourceDictionary Source="WindowStyles.xaml"/>
+        <ResourceDictionary Source="MenuStyles.xaml"/>
+        <ResourceDictionary Source="ListBoxStyles.xaml"/>
+        <ResourceDictionary Source="TextBoxStyles.xaml"/>
+        <ResourceDictionary Source="ScrollBarStyles.xaml"/>
+        <ResourceDictionary Source="DataGridStyles.xaml"/>
+        <ResourceDictionary Source="ComboBoxStyles.xaml"/>
+        <ResourceDictionary Source="GroupBoxStyles.xaml"/>
+        <ResourceDictionary Source="PasswordBoxStyles.xaml"/>
+        <ResourceDictionary Source="IntegerUpDownStyles.xaml"/>
+        <ResourceDictionary Source="WatermarkTextBoxStyles.xaml"/>
+    </ResourceDictionary.MergedDictionaries>
+    <convertors:AmountConverter x:Key="AmountConverter" />
+    <convertors:QuantityConverter x:Key="QuantityConverter" />
+    <convertors:IntToAmountDoubleConverter x:Key="IntToAmountDoubleConverter" />
+    <convertors:IntToQuantityDoubleConverter x:Key="IntToQuantityDoubleConverter" />
+    <convertors:CalendarTypeConverter x:Key="CalendarTypeConverter" />
+    <convertors:NullableToVisibilityConverter x:Key="nullableToVisibilityConverter" />
+    <convertors:NotNullableToVisibilityConverter x:Key="notNullableToVisibilityConverter" />
+    <convertors:ControlTypeToVisibilityConverter x:Key="controlTypeToVisibilityConverter" />
+    <Style TargetType="Button" BasedOn="{StaticResource StandardButton}"/>
+    <Style TargetType="Window" BasedOn="{StaticResource StandardWindow}"/>
+    <Style TargetType="Menu" BasedOn="{StaticResource StandardMenu}"/>
+    <Style TargetType="ListBox" BasedOn="{StaticResource StandardListBox}"/>
+    <Style TargetType="ScrollBar" BasedOn="{StaticResource StandardScrollBar}"/>
+    <Style TargetType="TextBox" BasedOn="{StaticResource StandardTextBox}"/>
+    <Style TargetType="{x:Type toolkit:WatermarkTextBox}" BasedOn="{StaticResource StandardWatermarkTextBox}" />
+    <Style TargetType="DataGrid" BasedOn="{StaticResource StandardDataGrid}"/>
+    <Style TargetType="ComboBox" BasedOn="{StaticResource StandardComboBox}"/>
+    <Style TargetType="GroupBox" BasedOn="{StaticResource StandardGroupBox}"/>
+    <Style TargetType="PasswordBox" BasedOn="{StaticResource StandardPasswordBox}"/>
+    <Style TargetType="{x:Type toolkit:IntegerUpDown}" BasedOn="{StaticResource StandardNumericUpDown}" />
+    <Style TargetType="{x:Type toolkit:DoubleUpDown}" BasedOn="{StaticResource StandardNumericUpDown}" />
+</ResourceDictionary>

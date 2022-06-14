@@ -1,0 +1,241 @@
+﻿<controls:ControlBase x:Class="ShopOffice.Controls.SaleControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:properties="clr-namespace:ShopOffice.Properties"
+    xmlns:controls="clr-namespace:ShopOffice.Controls"
+    xmlns:models="clr-namespace:ShopOffice.Models"
+    xmlns:toolkit="http://schemas.xceed.com/wpf/xaml/toolkit"                 
+    MinHeight="600"
+    MinWidth="750">
+    <Grid>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="0.75*" />
+                <RowDefinition Height="0.25*" MinHeight="120" />
+            </Grid.RowDefinitions>
+            <controls:AnalogClockControl
+                x:Name="acControl"
+                Margin="100,100,100,50"
+                Grid.Row="0"
+                MinHeight="300"
+                MinWidth="300"
+                Opacity="0.12">
+            </controls:AnalogClockControl>
+            <Viewbox
+                Grid.Row="1"
+                StretchDirection="Both" Stretch="Uniform">
+                <TextBlock
+                    Name="tbCalendar"
+                    Background="Transparent"
+                    HorizontalAlignment="Center"
+                    Margin="20,0,20,20"
+                    Foreground="#FFA0A0A0"
+                    Visibility="Hidden"
+                    TextAlignment="Center">
+                </TextBlock>
+            </Viewbox>
+        </Grid>
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="75*" />
+                <RowDefinition Height="25*" MinHeight="120" />
+            </Grid.RowDefinitions>
+            <toolkit:WatermarkTextBox
+                Grid.Row="0"
+                Name="tbInput"
+                FontSize="25"
+                HorizontalContentAlignment="Center"
+                KeyDown="tbInput_KeyDown"
+                TextChanged="TbInput_TextChanged"
+                BorderBrush="Transparent"
+                Watermark="{x:Static properties:Resources.str_0037}">
+            </toolkit:WatermarkTextBox>
+            <Popup
+                Name="pInput"
+                PopupAnimation="Slide"
+                AllowsTransparency="True"
+                PlacementTarget="{Binding ElementName=tbInput}"
+                Placement="Center"
+                VerticalOffset="65">
+                <Popup.DataContext>
+                    <models:SaleInputPopupModel/>
+                </Popup.DataContext>
+                <Border 
+                    Height="Auto"
+                    Width="Auto"
+                    BorderBrush="Black"
+                    BorderThickness="1">
+                    <Grid
+                        Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                            <RowDefinition Height="Auto" />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="120" />
+                            <ColumnDefinition Width="Auto" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock
+                            Grid.Row="0"
+                            FontSize="18"
+                            Text="{x:Static properties:Resources.str_0016}"  
+                            Margin="10,4,10,4">
+                        </TextBlock>
+                        <TextBlock
+                            Grid.Row="0"
+                            Grid.Column="1"
+                            FontSize="18"
+                            FontStyle="Italic"
+                            Text="{Binding RelativeSource={RelativeSource Self}, Path=Name}"
+                            Margin="0,4,10,4">
+                        </TextBlock>
+                        <TextBlock
+                            Grid.Row="1"
+                            FontSize="18"
+                            Text="{x:Static properties:Resources.str_0017}"  
+                            Margin="10,4,10,4">
+                        </TextBlock>
+                        <TextBlock
+                            Grid.Row="1"
+                            Grid.Column="1"
+                            FontSize="18"
+                            FontStyle="Italic"
+                            Text="{Binding Quantity, Converter={StaticResource QuantityConverter}}"
+                            Margin="0,4,10,4">
+                        </TextBlock>
+                        <TextBlock
+                            Grid.Row="2"
+                            FontSize="18"
+                            Text="{x:Static properties:Resources.str_0018}"  
+                            Margin="10,4,10,4">
+                        </TextBlock>
+                        <TextBlock
+                            Grid.Row="2"
+                            Grid.Column="1"
+                            FontSize="18"
+                            FontStyle="Italic"
+                            Text="{Binding Amount, Converter={StaticResource AmountConverter}}"
+                            Margin="0,4,10,4">
+                        </TextBlock>
+                    </Grid>
+                </Border>
+            </Popup>
+            <DataGrid 
+                Grid.Row="1"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                ItemsSource="{Binding}"
+                AutoGenerateColumns="false" 
+                CanUserResizeRows="False"
+                HorizontalGridLinesBrush="#CCAAAAAA" 
+                VerticalGridLinesBrush="#CCAAAAAA" 
+                SelectionMode="Single"
+                Name="dgSaleItems"
+                BorderBrush="Transparent"
+                IsReadOnly="True" 
+                CanUserAddRows="False"
+                SelectionUnit="FullRow"
+                Background="Transparent"
+                AlternationCount="2">
+                <DataGrid.Columns>
+                    <DataGridTextColumn 
+                        Header="{x:Static properties:Resources.str_0015}"  
+                        Binding="{Binding CodeId}"
+                        Width="auto"
+                        MinWidth="60"
+                        >
+                    </DataGridTextColumn>
+                    <DataGridTextColumn 
+                        Header="{x:Static properties:Resources.str_0016}" 
+                        Binding="{Binding Name}"
+                        Width="*"
+                        MinWidth="100"
+                        >
+                    </DataGridTextColumn>
+                    <DataGridTextColumn 
+                        Header="{x:Static properties:Resources.str_0017}" 
+                        Binding="{Binding Quantity, Converter={StaticResource QuantityConverter}}"
+                        Width="auto"
+                        MinWidth="100"
+                        >
+                    </DataGridTextColumn>
+                    <DataGridTextColumn 
+                        Header="{x:Static properties:Resources.str_0018}" 
+                        Binding="{Binding Amount, Converter={StaticResource AmountConverter}}"
+                        Width="auto"
+                        MinWidth="100"
+                        >
+                    </DataGridTextColumn>
+                    <DataGridTextColumn 
+                        Header="{x:Static properties:Resources.str_0019}" 
+                        Binding="{Binding TotalAmount, Converter={StaticResource AmountConverter}}"
+                        Width="auto"
+                        MinWidth="100"
+                        >
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            <DataGrid 
+                Grid.Row="1"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                ItemsSource="{Binding}"
+                AutoGenerateColumns="false" 
+                CanUserResizeRows="False"
+                HorizontalGridLinesBrush="#CCAAAAAA" 
+                VerticalGridLinesBrush="#CCAAAAAA" 
+                SelectionMode="Single"
+                Name="dgProductItems"
+                Visibility="Collapsed"
+                BorderBrush="Transparent"
+                IsReadOnly="True" 
+                CanUserAddRows="False"
+                SelectionUnit="FullRow"
+                Background="Transparent"
+                MouseDoubleClick="DgProductItems_MouseDoubleClick"
+                AlternationCount="2">
+                <DataGrid.Columns>
+                    <DataGridTextColumn 
+                        Header="{x:Static properties:Resources.str_0015}"  
+                        Binding="{Binding CodeId}"
+                        Width="auto"
+                        MinWidth="60"
+                        >
+                    </DataGridTextColumn>
+                    <DataGridTextColumn 
+                        Header="{x:Static properties:Resources.str_0016}" 
+                        Binding="{Binding Name}"
+                        Width="*"
+                        MinWidth="100"
+                        >
+                    </DataGridTextColumn>
+                    <DataGridTextColumn 
+                        Header="{x:Static properties:Resources.str_0017}" 
+                        Binding="{Binding Quantity, Converter={StaticResource QuantityConverter}}"
+                        Width="auto"
+                        MinWidth="100"
+                        >
+                    </DataGridTextColumn>
+                    <DataGridTextColumn 
+                        Header="{x:Static properties:Resources.str_0018}" 
+                        Binding="{Binding Amount, Converter={StaticResource AmountConverter}}"
+                        Width="auto"
+                        MinWidth="100"
+                        >
+                    </DataGridTextColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+            <Viewbox
+                Grid.Row="2"
+                StretchDirection="Both" Stretch="Uniform">
+                <TextBlock
+                    Name="tbTotalAmount"
+                    HorizontalAlignment="Center"
+                    Foreground="White">
+                </TextBlock>
+            </Viewbox>
+        </Grid>
+    </Grid>
+</controls:ControlBase>

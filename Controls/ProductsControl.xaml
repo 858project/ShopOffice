@@ -1,0 +1,74 @@
+﻿<controls:ControlBase x:Class="ShopOffice.Controls.ProductsControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:properties="clr-namespace:ShopOffice.Properties"
+    xmlns:controls="clr-namespace:ShopOffice.Controls"
+    xmlns:toolkit="http://schemas.xceed.com/wpf/xaml/toolkit"    
+    MinHeight="300"
+    MinWidth="750">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <toolkit:WatermarkTextBox
+            Grid.Row="0"
+            Name="tbInput"
+            FontSize="25"
+            HorizontalContentAlignment="Center"
+            KeyDown="tbInput_KeyDown"
+            TextChanged="tbInput_TextChanged"
+            BorderBrush="Transparent"
+            Watermark="{x:Static properties:Resources.str_0038}">
+        </toolkit:WatermarkTextBox>
+        <DataGrid 
+            Grid.Row="1"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"
+            ItemsSource="{Binding}"
+            AutoGenerateColumns="false" 
+            CanUserResizeRows="False"
+            HorizontalGridLinesBrush="#CCAAAAAA" 
+            VerticalGridLinesBrush="#CCAAAAAA" 
+            SelectionMode="Single"
+            Name="dgProductItems"
+            BorderBrush="Transparent"
+            IsReadOnly="True" 
+            CanUserAddRows="False"
+            SelectionUnit="FullRow"
+            Background="Transparent"
+            MouseDoubleClick="DgProductItems_MouseDoubleClick"
+            AlternationCount="2">
+            <DataGrid.Columns>
+                <DataGridTextColumn 
+                    Header="{x:Static properties:Resources.str_0015}"  
+                    Binding="{Binding CodeId}"
+                    Width="auto"
+                    MinWidth="60"
+                    >
+                </DataGridTextColumn>
+                <DataGridTextColumn 
+                    Header="{x:Static properties:Resources.str_0016}" 
+                    Binding="{Binding Name}"
+                    Width="*"
+                    MinWidth="100"
+                    >
+                </DataGridTextColumn>
+                <DataGridTextColumn 
+                    Header="{x:Static properties:Resources.str_0017}" 
+                    Binding="{Binding Quantity, Converter={StaticResource QuantityConverter}}"
+                    Width="auto"
+                    MinWidth="100"
+                    >
+                </DataGridTextColumn>
+                <DataGridTextColumn 
+                    Header="{x:Static properties:Resources.str_0018}" 
+                    Binding="{Binding Amount, Converter={StaticResource AmountConverter}}"
+                    Width="auto"
+                    MinWidth="100"
+                    >
+                </DataGridTextColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+    </Grid>
+</controls:ControlBase>
