@@ -96,7 +96,7 @@ namespace ShopOffice.Windows
             using (var database = this.DatabaseFactory.CreateDbContext())
             {
                 var items = database.Table_Accounts.ToList();
-                if (items != null && items.Count > 0x00)
+                if (items?.Count > 0x00)
                 {
                     foreach (var item in items)
                     {
@@ -140,7 +140,7 @@ namespace ShopOffice.Windows
         private Boolean InternalValidateData()
         {
             // validate account
-            if (this.cbAccount.SelectedItem == null && !(this.cbAccount.SelectedItem is Table_Account_DatabaseModel))
+            if (this.cbAccount.SelectedItem == null && this.cbAccount.SelectedItem is not Table_Account_DatabaseModel)
             {
                 this.cbAccount.BorderBrush = Brushes.Red;
                 return false;
