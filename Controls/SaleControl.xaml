@@ -46,7 +46,7 @@
                 Name="tbInput"
                 FontSize="25"
                 HorizontalContentAlignment="Center"
-                KeyDown="tbInput_KeyDown"
+                KeyDown="TbInput_KeyDown"
                 TextChanged="TbInput_TextChanged"
                 BorderBrush="Transparent"
                 Watermark="{x:Static properties:Resources.str_0037}">

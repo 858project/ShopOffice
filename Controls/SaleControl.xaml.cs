@@ -35,7 +35,6 @@ namespace ShopOffice.Controls
             : base(loggerFactory, account, busyIndicator, configuration, databaseFactory)
         {
             this.InitializeComponent();
-
         }
         #endregion
 
@@ -184,7 +183,7 @@ namespace ShopOffice.Controls
                         DateTime date = this.mCalendarDate.Value;
 
                         // select data from database
-                        var items = database.Table_Calendars.Where(x => 
+                        var items = database.Table_Calendars.Where(x =>
                                                                    (!x.Year.HasValue || x.Year.Value == date.Year) &&
                                                                    x.Month == date.Month &&
                                                                    x.Day == date.Day)
@@ -363,7 +362,7 @@ namespace ShopOffice.Controls
         /// <param name="span">Delay</param>
         private void InternalSetDefaultFocus(TimeSpan span)
         {
-            Task.Delay(span).ContinueWith((task) =>
+            Task.Delay(span).ContinueWith((_) =>
             {
                 this.Dispatcher.Invoke(new Action(() =>
                 {
@@ -393,7 +392,7 @@ namespace ShopOffice.Controls
                 catch (Exception ex)
                 {
                     // trace
-                    this.Logger?.LogError(ex, ex.Message);
+                    this.Logger?.LogError(ex, message: ex.Message);
 
                     // show error for user
                     NotificationHelper.ShowError(ex.Message);
@@ -454,7 +453,7 @@ namespace ShopOffice.Controls
                                                     .ToList();
 
                     // checkdata
-                    if (items != null && items.Count > 0x00)
+                    if (items?.Count > 0x00)
                     {
                         // lopp all items
                         foreach (Table_Sale_DatabaseModel item in items)
@@ -502,7 +501,7 @@ namespace ShopOffice.Controls
                     transaction.Rollback();
 
                     // trace
-                    this.Logger?.LogError(ex, ex.Message);
+                    this.Logger?.LogError(ex, message: ex.Message);
 
                     // error
                     return false;
@@ -523,54 +522,54 @@ namespace ShopOffice.Controls
                 return this.InternalSale(database);
             }
         }
-        /// <summary>
-        /// This method executes sale operation with card
-        /// </summary>
-        /// <param name="model">Model with data</param>
-        /// <returns>True | False</returns>
-        private Boolean InternalExecuteSaleWithCard(SaleInputModel model)
-        {
-            // access to database
-            using (var database = this.DatabaseFactory.CreateDbContext())
-            {
-                // load data
-                var items = database.View_Sales.Where(x =>
-                                                      !x.Sold &&
-                                                      x.AccountId == this.Account.Id)
-                                               .ToList();
+        ///// <summary>
+        ///// This method executes sale operation with card
+        ///// </summary>
+        ///// <param name="model">Model with data</param>
+        ///// <returns>True | False</returns>
+        //private Boolean InternalExecuteSaleWithCard(SaleInputModel model)
+        //{
+        //    // access to database
+        //    using (var database = this.DatabaseFactory.CreateDbContext())
+        //    {
+        //        // load data
+        //        var items = database.View_Sales.Where(x =>
+        //                                              !x.Sold &&
+        //                                              x.AccountId == this.Account.Id)
+        //                                       .ToList();
 
-                // check count
-                if (items != null && items.Count > 0x00)
-                {
-                    try
-                    {
-                        // execute sale with cash register
-                        DeviceHelper.Execute(Utility.GetConfiguration("DeviceComPort"), items, DeviceHelper.PaymentTypes.Credit);
+        //        // check count
+        //        if (items != null && items.Count > 0x00)
+        //        {
+        //            try
+        //            {
+        //                // execute sale with cash register
+        //                DeviceHelper.Execute(Utility.GetConfiguration("DeviceComPort"), items, DeviceHelper.PaymentTypes.Credit);
 
-                        // make sale in database
-                        return this.InternalSale(database);
-                    }
-                    catch (Exception ex)
-                    {
-                        // trace error
-                        this.Logger?.LogError(ex, ex.Message);
+        //                // make sale in database
+        //                return this.InternalSale(database);
+        //            }
+        //            catch (Exception ex)
+        //            {
+        //                // trace error
+        //                this.Logger?.LogError(ex, ex.Message);
 
-                        // show message for user
-                        NotificationHelper.ShowError(String.Format(Properties.Resources.str_0020, ex.Message));
-                        return false;
-                    }
-                }
+        //                // show message for user
+        //                NotificationHelper.ShowError(String.Format(Properties.Resources.str_0020, ex.Message));
+        //                return false;
+        //            }
+        //        }
 
-                // no data to execute
-                return true;
-            }
-        }
+        //        // no data to execute
+        //        return true;
+        //    }
+        //}
         /// <summary>
         /// This method executes sale operation with cash
         /// </summary>
         /// <param name="model">Model with data</param>
         /// <returns>True | False</returns>
-        private Boolean InternalExecuteSaleWithCash(SaleInputModel model)
+        private Boolean InternalExecuteSale(SaleInputModel model, DeviceHelper.PaymentTypes paymentTypes)
         {
             // access to database
             using (var database = this.DatabaseFactory.CreateDbContext())
@@ -587,7 +586,7 @@ namespace ShopOffice.Controls
                     try
                     {
                         // execute sale with cash register
-                        DeviceHelper.Execute(Utility.GetConfiguration("DeviceComPort"), items, DeviceHelper.PaymentTypes.Cash);
+                        DeviceHelper.Execute(this.Configuration.CurrentValue.DeviceComPort, items, paymentTypes);
 
                         // make sale in database
                         return this.InternalSale(database);
@@ -595,7 +594,7 @@ namespace ShopOffice.Controls
                     catch (Exception ex)
                     {
                         // trace error
-                        this.Logger?.LogError(ex, ex.Message);
+                        this.Logger?.LogError(ex, message: ex.Message);
 
                         // show message for user
                         NotificationHelper.ShowError(String.Format(Properties.Resources.str_0020, ex.Message));
@@ -693,7 +692,7 @@ namespace ShopOffice.Controls
                                                                x.AccountId == this.Account.Id);
 
                 // check count
-                Int32 quantity = product.Quantity - (sale == null ? 0x00 : sale.Quantity);
+                Int32 quantity = product.Quantity - ((sale?.Quantity) ?? 0x00);
                 if (Convert.ToUInt32(quantity) < model.Count)
                 {
                     // show error
@@ -774,7 +773,7 @@ namespace ShopOffice.Controls
                 case SaleInputModel.OperationTypes.SaleWithCash:
                 {
                     // execute sale with cash
-                    if (this.InternalExecuteSaleWithCash(model))
+                    if (this.InternalExecuteSale(model, DeviceHelper.PaymentTypes.Cash))
                     {
                         // invalidate data
                         this.InternalInvalidateData();
@@ -784,7 +783,7 @@ namespace ShopOffice.Controls
                 case SaleInputModel.OperationTypes.SaleWithCard:
                 {
                     // execute sale with cash
-                    if (this.InternalExecuteSaleWithCard(model))
+                    if (this.InternalExecuteSale(model, DeviceHelper.PaymentTypes.Credit))
                     {
                         // invalidate data
                         this.InternalInvalidateData();
@@ -828,7 +827,7 @@ namespace ShopOffice.Controls
             if (type == DataGridTypes.Sale)
             {
                 var data = this.dgSaleItems.ItemsSource;
-                if (data == null || !(data is List<View_Sale_DatabaseModel>) || ((List<View_Sale_DatabaseModel>)data).Count == 0x00)
+                if (data == null || data is not List<View_Sale_DatabaseModel> || ((List<View_Sale_DatabaseModel>)data).Count == 0x00)
                 {
                     this.InternalSetClockMode(true);
                     this.tbCalendar.Visibility = Visibility.Visible;
@@ -921,7 +920,7 @@ namespace ShopOffice.Controls
                 {
                     Interval = TimeSpan.FromSeconds(4)
                 };
-                mInputPopupTimer.Tick += delegate (object? sender, EventArgs e)
+                mInputPopupTimer.Tick += (object? sender, EventArgs e) =>
                 {
                     if (sender != null)
                     {
@@ -998,8 +997,8 @@ namespace ShopOffice.Controls
                                     // main thread
                                     Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
                                     {
-                                    // show product
-                                    this.InternalShowInputPopup(product);
+                                        // show product
+                                        this.InternalShowInputPopup(product);
                                     }));
                                 }
                             }
@@ -1018,7 +1017,7 @@ namespace ShopOffice.Controls
         /// </summary>
         /// <param name="sender">Input text box</param>
         /// <param name="e">Arguments</param>
-        private void tbInput_KeyDown(object sender, KeyEventArgs e)
+        private void TbInput_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.Key == Key.Enter && !e.Handled)
             {
@@ -1040,35 +1039,32 @@ namespace ShopOffice.Controls
         private void DgProductItems_MouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
             IInputElement element = e.MouseDevice.DirectlyOver;
-            if (element != null && element is FrameworkElement)
+            if (element != null && element is FrameworkElement element1 && element1.Parent is DataGridCell)
             {
-                if (((FrameworkElement)element).Parent is DataGridCell)
+                var grid = sender as DataGrid;
+                if (grid != null && grid.SelectedItems != null && grid.SelectedItems.Count == 1)
                 {
-                    var grid = sender as DataGrid;
-                    if (grid != null && grid.SelectedItems != null && grid.SelectedItems.Count == 1)
+                    Table_Product_DatabaseModel? product = grid.SelectedItem as Table_Product_DatabaseModel;
+                    if (product != null)
                     {
-                        Table_Product_DatabaseModel? product = grid.SelectedItem as Table_Product_DatabaseModel;
-                        if (product != null)
+                        // create input
+                        SaleInputModel input = new(SaleInputModel.OperationTypes.AddProduct)
                         {
-                            // create input
-                            SaleInputModel input = new SaleInputModel(SaleInputModel.OperationTypes.AddProduct)
-                            {
-                                Code = Convert.ToUInt32(product.CodeId),
-                                Count = 0x01
-                            };
+                            Code = Convert.ToUInt32(product.CodeId),
+                            Count = 0x01
+                        };
 
-                            // execute this operation
-                            this.InternalExecute(input);
+                        // execute this operation
+                        this.InternalExecute(input);
 
-                            // reload data
-                            this.InternalInvalidateData();
- 
-                            // invalidate data grid
-                            this.InternalInvalidateDataGrid(DataGridTypes.Sale);
+                        // reload data
+                        this.InternalInvalidateData();
 
-                            // set default focus
-                            this.InternalSetDefaultFocus(TimeSpan.FromSeconds(1));
-                        }
+                        // invalidate data grid
+                        this.InternalInvalidateDataGrid(DataGridTypes.Sale);
+
+                        // set default focus
+                        this.InternalSetDefaultFocus(TimeSpan.FromSeconds(1));
                     }
                 }
             }
