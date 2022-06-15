@@ -177,22 +177,21 @@ namespace ShopOffice.Controls
                 if (this.mCalendarDate.HasValue)
                 {
                     // access to database
-                    using (var database = this.DatabaseFactory.CreateDbContext())
-                    {
-                        // get date
-                        DateTime date = this.mCalendarDate.Value;
+                    using var database = this.DatabaseFactory.CreateDbContext();
 
-                        // select data from database
-                        var items = database.Table_Calendars.Where(x =>
-                                                                   (!x.Year.HasValue || x.Year.Value == date.Year) &&
-                                                                   x.Month == date.Month &&
-                                                                   x.Day == date.Day)
-                                                            .OrderBy(x => x.Type)
-                                                            .ToList();          
+                    // get date
+                    DateTime date = this.mCalendarDate.Value;
 
-                        // set data
-                        this.mCalendarItems = items;
-                    }
+                    // select data from database
+                    var items = database.Table_Calendars.Where(x =>
+                                                               (!x.Year.HasValue || x.Year.Value == date.Year) &&
+                                                               x.Month == date.Month &&
+                                                               x.Day == date.Day)
+                                                        .OrderBy(x => x.Type)
+                                                        .ToList();
+
+                    // set data
+                    this.mCalendarItems = items;
                 }
             }
             catch (Exception ex)
@@ -313,7 +312,7 @@ namespace ShopOffice.Controls
 
             // initialize thimer for clock
             mClockDispatcherTimer = new System.Windows.Threading.DispatcherTimer();
-            mClockDispatcherTimer.Tick += new EventHandler(InternalClockDispatcherTimer_Tick);
+            mClockDispatcherTimer.Tick += this.InternalClockDispatcherTimer_Tick;
             mClockDispatcherTimer.Interval = new TimeSpan(0, 0, 1);
             mClockDispatcherTimer.Start();
         }
@@ -353,7 +352,6 @@ namespace ShopOffice.Controls
 
                 // select all data
                 this.tbInput.SelectAll();
-
             }), DispatcherPriority.Render);
         }
         /// <summary>
@@ -392,7 +390,7 @@ namespace ShopOffice.Controls
                 catch (Exception ex)
                 {
                     // trace
-                    this.Logger?.LogError(ex, message: ex.Message);
+                    this.Logger?.LogError(ex, ex.Message);
 
                     // show error for user
                     NotificationHelper.ShowError(ex.Message);
@@ -442,85 +440,82 @@ namespace ShopOffice.Controls
         private Boolean InternalSale(DatabaseContext database)
         {
             // transaction for all data
-            using (var transaction = database.Database.BeginTransaction())
-            {
-                try
-                {
-                    // select data from database
-                    var items = database.Table_Sales.Where(x =>
-                                                           !x.Sold &&
-                                                           x.AccountId == this.Account.Id)
-                                                    .ToList();
+            using var transaction = database.Database.BeginTransaction();
 
-                    // checkdata
-                    if (items?.Count > 0x00)
+            try
+            {
+                // select data from database
+                var items = database.Table_Sales.Where(x =>
+                                                       !x.Sold &&
+                                                       x.AccountId == this.Account.Id)
+                                                .ToList();
+
+                // checkdata
+                if (items?.Count > 0x00)
+                {
+                    // lopp all items
+                    foreach (Table_Sale_DatabaseModel item in items)
                     {
-                        // lopp all items
-                        foreach (Table_Sale_DatabaseModel item in items)
+                        // update sale item
+                        item.UpdateDate = DateTime.Now;
+                        item.Sold = true;
+
+                        // update model
+                        database.Table_Sales.Update(item);
+
+                        // get product from database
+                        var product = database.Table_Products.FirstOrDefault(x =>
+                                                                             x.Id == item.ProductId &&
+                                                                             x.AccountId == this.Account.Id);
+
+                        // check product
+                        if (product != null)
                         {
-                            // update sale item
-                            item.UpdateDate = DateTime.Now;
-                            item.Sold = true;
+                            // update product
+                            product.Quantity = Math.Max(0x00, product.Quantity - item.Quantity);
+                            product.UpdateDate = DateTime.Now;
 
                             // update model
-                            database.Table_Sales.Update(item);
-
-                            // get product from database
-                            var product = database.Table_Products.FirstOrDefault(x =>
-                                                                                 x.Id == item.ProductId &&
-                                                                                 x.AccountId == this.Account.Id);
-
-                            // check product
-                            if (product != null)
-                            {
-                                // update product
-                                product.Quantity = Math.Max(0x00, product.Quantity - item.Quantity);
-                                product.UpdateDate = DateTime.Now;
-
-                                // update model
-                                database.Table_Products.Update(product);
-                            }
-
-                            // save change to database
-                            database.SaveChanges();
+                            database.Table_Products.Update(product);
                         }
 
-                        // commit data to database
-                        transaction.Commit();
-
-                        // success
-                        return true;
+                        // save change to database
+                        database.SaveChanges();
                     }
 
-                    // no data to save
-                    return false;
-                }
-                catch (Exception ex)
-                {
-                    // rollback
-                    transaction.Rollback();
+                    // commit data to database
+                    transaction.Commit();
 
-                    // trace
-                    this.Logger?.LogError(ex, message: ex.Message);
-
-                    // error
-                    return false;
+                    // success
+                    return true;
                 }
+
+                // no data to save
+                return false;
+            }
+            catch (Exception ex)
+            {
+                // rollback
+                transaction.Rollback();
+
+                // trace
+                this.Logger?.LogError(ex, ex.Message);
+
+                // error
+                return false;
             }
         }
         /// <summary>
         /// This method executes sale operation
         /// </summary>
-        /// <param name="model">Model with data</param>
         /// <returns>True | False</returns>
-        private Boolean InternalExecuteSale(SaleInputModel model)
+        private Boolean InternalExecuteSale()
         {
             // access to database
-            using (var database = this.DatabaseFactory.CreateDbContext())
-            {
-                // make sale in database
-                return this.InternalSale(database);
-            }
+            using var database = this.DatabaseFactory.CreateDbContext();
+
+            // make sale in database
+            return this.InternalSale(database);
         }
         ///// <summary>
         ///// This method executes sale operation with card
@@ -567,44 +562,43 @@ namespace ShopOffice.Controls
         /// <summary>
         /// This method executes sale operation with cash
         /// </summary>
-        /// <param name="model">Model with data</param>
+        /// <param name="paymentTypes">Payment type</param>
         /// <returns>True | False</returns>
-        private Boolean InternalExecuteSale(SaleInputModel model, DeviceHelper.PaymentTypes paymentTypes)
+        private Boolean InternalExecuteSale(DeviceHelper.PaymentTypes paymentTypes)
         {
             // access to database
-            using (var database = this.DatabaseFactory.CreateDbContext())
+            using var database = this.DatabaseFactory.CreateDbContext();
+
+            // load data
+            var items = database.View_Sales.Where(x =>
+                                                  !x.Sold &&
+                                                  x.AccountId == this.Account.Id)
+                                           .ToList();
+
+            // check count
+            if (items?.Count > 0x00)
             {
-                // load data
-                var items = database.View_Sales.Where(x =>
-                                                      !x.Sold &&
-                                                      x.AccountId == this.Account.Id)
-                                               .ToList();
-
-                // check count
-                if (items != null && items.Count > 0x00)
+                try
                 {
-                    try
-                    {
-                        // execute sale with cash register
-                        DeviceHelper.Execute(this.Configuration.CurrentValue.DeviceComPort, items, paymentTypes);
+                    // execute sale with cash register
+                    DeviceHelper.Execute(this.Configuration.CurrentValue.DeviceComPort, items, paymentTypes);
 
-                        // make sale in database
-                        return this.InternalSale(database);
-                    }
-                    catch (Exception ex)
-                    {
-                        // trace error
-                        this.Logger?.LogError(ex, message: ex.Message);
-
-                        // show message for user
-                        NotificationHelper.ShowError(String.Format(Properties.Resources.str_0020, ex.Message));
-                        return false;
-                    }
+                    // make sale in database
+                    return this.InternalSale(database);
                 }
+                catch (Exception ex)
+                {
+                    // trace error
+                    this.Logger?.LogError(ex, ex.Message);
 
-                // no data to execute
-                return true;
+                    // show message for user
+                    NotificationHelper.ShowError(String.Format(Properties.Resources.str_0020, ex.Message));
+                    return false;
+                }
             }
+
+            // no data to execute
+            return true;
         }
         /// <summary>
         /// This method removes product from sale
@@ -613,55 +607,53 @@ namespace ShopOffice.Controls
         private void InternalExecuteRemoveProduct(SaleInputModel model)
         {
             // access to database
-            using (var database = this.DatabaseFactory.CreateDbContext())
+            using var database = this.DatabaseFactory.CreateDbContext();
+
+            // get product from database
+            var product = database.Table_Products.FirstOrDefault(x =>
+                                                                 x.CodeId == model.Code &&
+                                                                 x.AccountId == this.Account.Id);
+
+            // check product
+            if (product == null)
             {
-                // get product from database
-                var product = database.Table_Products.FirstOrDefault(x =>
-                                                                     x.CodeId == model.Code &&
-                                                                     x.AccountId == this.Account.Id);
-
-                // check product
-                if (product == null)
-                {
-                    // show error
-                    NotificationHelper.ShowWarning(String.Format(Properties.Resources.str_0013, model.Code));
-                    return;
-                }
-
-                // get sold item
-                var sale = database.Table_Sales.FirstOrDefault(x => 
-                                                               !x.Sold &&
-                                                               x.ProductId == product.Id &&
-                                                               x.AccountId == this.Account.Id);
-
-                // check sale
-                if (sale == null)
-                {
-                    // show error
-                    NotificationHelper.ShowWarning(String.Format(Properties.Resources.str_0031, model.Code));
-                    return;
-                }
-
-                // check count
-                if (sale.Quantity <= model.Count)
-                {
-                    // delete object
-                    database.Table_Sales.Remove(sale);
-                }
-                else
-                {
-
-                    // update model
-                    sale.UpdateDate = DateTime.Now;
-                    sale.Quantity -= Convert.ToInt32(model.Count);
-
-                    // update model to database
-                    database.Table_Sales.Update(sale);
-                }
-
-                // save change to database
-                database.SaveChanges();
+                // show error
+                NotificationHelper.ShowWarning(String.Format(Properties.Resources.str_0013, model.Code));
+                return;
             }
+
+            // get sold item
+            var sale = database.Table_Sales.FirstOrDefault(x =>
+                                                           !x.Sold &&
+                                                           x.ProductId == product.Id &&
+                                                           x.AccountId == this.Account.Id);
+
+            // check sale
+            if (sale == null)
+            {
+                // show error
+                NotificationHelper.ShowWarning(String.Format(Properties.Resources.str_0031, model.Code));
+                return;
+            }
+
+            // check count
+            if (sale.Quantity <= model.Count)
+            {
+                // delete object
+                database.Table_Sales.Remove(sale);
+            }
+            else
+            {
+                // update model
+                sale.UpdateDate = DateTime.Now;
+                sale.Quantity -= Convert.ToInt32(model.Count);
+
+                // update model to database
+                database.Table_Sales.Update(sale);
+            }
+
+            // save change to database
+            database.SaveChanges();
         }
         /// <summary>
         /// This function adds product to sale
@@ -670,68 +662,67 @@ namespace ShopOffice.Controls
         private void InternalExecuteAddProduct(SaleInputModel model)
         {
             // access to database
-            using (var database = this.DatabaseFactory.CreateDbContext())
+            using var database = this.DatabaseFactory.CreateDbContext();
+
+            // get product from database
+            var product = database.Table_Products.FirstOrDefault(x =>
+                                                                 x.CodeId == model.Code &&
+                                                                 x.AccountId == this.Account.Id);
+
+            // check product
+            if (product == null)
             {
-                // get product from database
-                var product = database.Table_Products.FirstOrDefault(x =>
-                                                                     x.CodeId == model.Code &&
-                                                                     x.AccountId == this.Account.Id);
-
-                // check product
-                if (product == null)
-                {
-                    // show error
-                    NotificationHelper.ShowWarning(String.Format(Properties.Resources.str_0013, model.Code));
-                    return;
-                }
-
-                // get sold item
-                var sale = database.Table_Sales.FirstOrDefault(x =>
-                                                               !x.Sold &&
-                                                               x.ProductId == product.Id &&
-                                                               x.AccountId == this.Account.Id);
-
-                // check count
-                Int32 quantity = product.Quantity - ((sale?.Quantity) ?? 0x00);
-                if (Convert.ToUInt32(quantity) < model.Count)
-                {
-                    // show error
-                    NotificationHelper.ShowWarning(String.Format(Properties.Resources.str_0014, quantity));
-                    return;
-                }
-
-                // check sale
-                if (sale == null)
-                {
-                    // create new model
-                    sale = new Table_Sale_DatabaseModel()
-                    {
-                        AccountId = this.Account.Id,
-                        Amount = product.Amount,
-                        ProductId = product.Id,
-                        Quantity = Convert.ToInt32(model.Count),
-                        Sold = false,
-                        Status = false,
-                        CreateDate = DateTime.Now,
-                        UpdateDate = DateTime.Now
-                    };
-
-                    // insert model to database
-                    database.Table_Sales.Add(sale);
-                }
-                else
-                {
-                    // update model
-                    sale.UpdateDate = DateTime.Now;
-                    sale.Quantity += Convert.ToInt32(model.Count);
-
-                    // update model to database
-                    database.Table_Sales.Update(sale);
-                }
-
-                // save change
-                database.SaveChanges();
+                // show error
+                NotificationHelper.ShowWarning(String.Format(Properties.Resources.str_0013, model.Code));
+                return;
             }
+
+            // get sold item
+            var sale = database.Table_Sales.FirstOrDefault(x =>
+                                                           !x.Sold &&
+                                                           x.ProductId == product.Id &&
+                                                           x.AccountId == this.Account.Id);
+
+            // check count
+            Int32 quantity = product.Quantity - ((sale?.Quantity) ?? 0x00);
+            if (Convert.ToUInt32(quantity) < model.Count)
+            {
+                // show error
+                NotificationHelper.ShowWarning(String.Format(Properties.Resources.str_0014, quantity));
+                return;
+            }
+
+            // check sale
+            if (sale == null)
+            {
+                // create new model
+                sale = new Table_Sale_DatabaseModel()
+                {
+                    AccountId = this.Account.Id,
+                    Amount = product.Amount,
+                    ProductId = product.Id,
+                    Quantity = Convert.ToInt32(model.Count),
+                    Sold = false,
+                    Status = false,
+                    CreateDate = DateTime.Now,
+                    UpdateDate = DateTime.Now
+                };
+
+                // insert model to database
+                database.Table_Sales.Add(sale);
+            }
+            else
+            {
+                // update model
+                sale.UpdateDate = DateTime.Now;
+                sale.Quantity += Convert.ToInt32(model.Count);
+
+                // update model to database
+                database.Table_Sales.Update(sale);
+            }
+
+            // save change
+            database.SaveChanges();
         }
         /// <summary>
         /// This method executes operation in this control
@@ -763,7 +754,7 @@ namespace ShopOffice.Controls
                 case SaleInputModel.OperationTypes.Sale:
                 {
                     // execute sale
-                    if (this.InternalExecuteSale(model))
+                    if (this.InternalExecuteSale())
                     {
                         // invalidate data
                         this.InternalInvalidateData();
@@ -773,7 +764,7 @@ namespace ShopOffice.Controls
                 case SaleInputModel.OperationTypes.SaleWithCash:
                 {
                     // execute sale with cash
-                    if (this.InternalExecuteSale(model, DeviceHelper.PaymentTypes.Cash))
+                    if (this.InternalExecuteSale(DeviceHelper.PaymentTypes.Cash))
                     {
                         // invalidate data
                         this.InternalInvalidateData();
@@ -783,7 +774,7 @@ namespace ShopOffice.Controls
                 case SaleInputModel.OperationTypes.SaleWithCard:
                 {
                     // execute sale with cash
-                    if (this.InternalExecuteSale(model, DeviceHelper.PaymentTypes.Credit))
+                    if (this.InternalExecuteSale(DeviceHelper.PaymentTypes.Credit))
                     {
                         // invalidate data
                         this.InternalInvalidateData();
@@ -802,21 +793,20 @@ namespace ShopOffice.Controls
         private void InternalInvalidateData()
         {
             // access to database
-            using (var database = this.DatabaseFactory.CreateDbContext())
-            {
-                // select data
-                var items = database.View_Sales.Where(x =>
-                                                      !x.Sold &&
-                                                      x.AccountId == this.Account.Id)
-                                               .ToList();
+            using var database = this.DatabaseFactory.CreateDbContext();
 
-                // set data
-                this.dgSaleItems.ItemsSource = items;
+            // select data
+            var items = database.View_Sales.Where(x =>
+                                                  !x.Sold &&
+                                                  x.AccountId == this.Account.Id)
+                                           .ToList();
 
-                // update price
-                float totalCount = items != null && items.Count > 0x00 ? items.Sum(x => ((x.Quantity / 1000.0f) * x.Amount)) : 0x00;
-                this.tbTotalAmount.Text = String.Format("{0:0.00} €", (totalCount / 100.0f));
-            }
+            // set data
+            this.dgSaleItems.ItemsSource = items;
+
+            // update price
+            float totalCount = items?.Count > 0x00 ? items.Sum(x => (x.Quantity / 1000.0f) * x.Amount) : 0x00;
+            this.tbTotalAmount.Text = String.Format("{0:0.00} €", totalCount / 100.0f);
         }
         /// <summary>
         /// This method show one datagrid
@@ -860,27 +850,26 @@ namespace ShopOffice.Controls
         private void InternalSearch(String data)
         {
             // access to database
-            using (var database = this.DatabaseFactory.CreateDbContext())
+            using var database = this.DatabaseFactory.CreateDbContext();
+
+            // select data
+            var itemsQuery = database.Table_Products.Where(x =>
+                                                           x.AccountId == this.Account.Id);
+
+            // search cause
+            if (!String.IsNullOrWhiteSpace(data))
             {
-                // select data
-                var itemsQuery = database.Table_Products.Where(x =>
-                                                               x.AccountId == this.Account.Id);
-
-                // search cause
-                if (!String.IsNullOrWhiteSpace(data))
-                {
-                    // like operator
-                    itemsQuery = itemsQuery.Where(x =>
-                                                  EF.Functions.Like(x.Name, $"%{data}%") ||
-                                                  EF.Functions.Like(x.CodeId.ToString(), $"%{data}%"));
-                }
-
-                // get data
-                var items = itemsQuery.ToList();
-
-                // set data
-                this.dgProductItems.ItemsSource = items;
+                // like operator
+                itemsQuery = itemsQuery.Where(x =>
+                                              EF.Functions.Like(x.Name, $"%{data}%") ||
+                                              EF.Functions.Like(x.CodeId.ToString(), $"%{data}%"));
             }
+
+            // get data
+            var items = itemsQuery.ToList();
+
+            // set data
+            this.dgProductItems.ItemsSource = items;
         }
         /// <summary>
         /// This function executes clear operation
@@ -888,24 +877,23 @@ namespace ShopOffice.Controls
         private void InternalExecuteClear()
         {
             // access to database
-            using (var database = this.DatabaseFactory.CreateDbContext())
+            using var database = this.DatabaseFactory.CreateDbContext();
+
+            // select all items
+            var items = database.Table_Sales.Where(x =>
+                                                   !x.Sold &&
+                                                   x.AccountId == this.Account.Id)
+                                            .ToList();
+
+            // loop all items
+            foreach (var item in items)
             {
-                // select all items
-                var items = database.Table_Sales.Where(x =>
-                                                       !x.Sold &&
-                                                       x.AccountId == this.Account.Id)
-                                                .ToList();
-
-                // loop all items
-                foreach (var item in items)
-                {
-                    // remove items from database
-                    database.Table_Sales.Remove(item);
-                }
-
-                // save change in database
-                database.SaveChanges();
+                // remove items from database
+                database.Table_Sales.Remove(item);
             }
+
+            // save change in database
+            database.SaveChanges();
         }
         /// <summary>
         /// This method shows information about product in popup
@@ -984,23 +972,22 @@ namespace ShopOffice.Controls
                         Task.Run(() =>
                         {
                             // access to database
-                            using (var database = this.DatabaseFactory.CreateDbContext())
-                            {
-                                // get product from database
-                                var product = database.Table_Products.FirstOrDefault(x =>
-                                                                                     x.CodeId == inputMmodel.Code &&
-                                                                                     x.AccountId == this.Account.Id);
+                            using var database = this.DatabaseFactory.CreateDbContext();
 
-                                // check product
-                                if (product != null)
+                            // get product from database
+                            var product = database.Table_Products.FirstOrDefault(x =>
+                                                                                 x.CodeId == inputMmodel.Code &&
+                                                                                 x.AccountId == this.Account.Id);
+
+                            // check product
+                            if (product != null)
+                            {
+                                // main thread
+                                Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
                                 {
-                                    // main thread
-                                    Application.Current.Dispatcher.BeginInvoke(DispatcherPriority.Background, new Action(() =>
-                                    {
                                         // show product
                                         this.InternalShowInputPopup(product);
-                                    }));
-                                }
+                                }));
                             }
                         });
                     }
@@ -1042,10 +1029,9 @@ namespace ShopOffice.Controls
             if (element != null && element is FrameworkElement element1 && element1.Parent is DataGridCell)
             {
                 var grid = sender as DataGrid;
-                if (grid != null && grid.SelectedItems != null && grid.SelectedItems.Count == 1)
+                if (grid?.SelectedItems?.Count == 1)
                 {
-                    Table_Product_DatabaseModel? product = grid.SelectedItem as Table_Product_DatabaseModel;
-                    if (product != null)
+                    if (grid.SelectedItem is Table_Product_DatabaseModel product)
                     {
                         // create input
                         SaleInputModel input = new(SaleInputModel.OperationTypes.AddProduct)
@@ -1069,8 +1055,6 @@ namespace ShopOffice.Controls
                 }
             }
         }
-
-
         #endregion
     }
 }
